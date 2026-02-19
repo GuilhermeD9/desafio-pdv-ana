@@ -1,7 +1,7 @@
 services:
 
   db:
-    image: postgres
+    image: postgres:latest
     container_name: dsf-analista-db
     ports:
       - "5432:5432"
@@ -10,7 +10,8 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: admin
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - ./db_data:/var/lib/postgresql
 
 volumes:
-  postgres_data:
+  db_data:
+    driver: local
