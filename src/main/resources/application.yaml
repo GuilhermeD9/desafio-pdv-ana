@@ -1,3 +1,9 @@
 spring:
   application:
     name: desafio-sgt
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/desafio-db
+    username: postgres
+    password: admin
+    driver-class-name: org.postgresql.Driver

@@ -1,0 +1,17 @@
+services:
+
+  db:
+    image: postgres:latest
+    container_name: dsf-analista-db
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: desafio-db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin
+    volumes:
+      - ./db_data:/var/lib/postgresql
+
+volumes:
+  db_data:
+    driver: local
