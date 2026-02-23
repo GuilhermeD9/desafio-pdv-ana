@@ -11,7 +11,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.sql.PreparedStatement;
-import java.sql.Statement;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -54,7 +53,7 @@ public class PedidoRepository {
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
         jdbcTemplate.update(connection -> {
-            PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            PreparedStatement ps = connection.prepareStatement(sql, new String[]{"id"});
             ps.setLong(1, pedido.getClienteId());
             ps.setTimestamp(2, Timestamp.valueOf(pedido.getDataPedido() != null ? pedido.getDataPedido() : LocalDateTime.now()));
             ps.setBigDecimal(3, pedido.getValorTotal());
@@ -81,7 +80,7 @@ public class PedidoRepository {
                 throw new RuntimeException("Falha ao atualizar estoque: Produto ID " + item.getProdutoId() + " não encontrado.");
             }
         }
-        return pedido;
+        return buscarPorId(pedidoId);
     }
 
     public List<Pedido> listarPorClienteId(Long clienteId) {

@@ -34,6 +34,7 @@ public class ProdutoController {
         return ResponseEntity.ok(produtoService.listarTodos());
     }
 
+    @GetMapping("/buscar")
     public ResponseEntity<Object> buscar(@RequestParam("termo") String termo) {
         Object resultado = produtoService.buscar(termo);
 
