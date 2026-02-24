@@ -3,9 +3,9 @@ import { Container } from 'react-bootstrap';
 import NavBar from './components/NavBar';
 import TelaClientes from './pages/TelaClientes';
 import TelaProdutos from './pages/TelaProdutos';
+import TelaPedidos from './pages/TelaPedidos';
 
 const Home = () => <h2>Bem-vindo ao Sistema de Gestão</h2>;
-const TelaPedidos = () => <h2>Tela de Pedidos (Em breve)</h2>;
 
 function App() {
   return (
