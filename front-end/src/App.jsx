@@ -4,6 +4,7 @@ import NavBar from './components/NavBar';
 import TelaClientes from './pages/TelaClientes';
 import TelaProdutos from './pages/TelaProdutos';
 import TelaPedidos from './pages/TelaPedidos';
+import TelaRelatorios from './pages/TelaRelatorios';
 
 const Home = () => <h2>Bem-vindo ao Sistema de Gestão</h2>;
 
@@ -18,6 +19,7 @@ function App() {
           <Route path="/clientes" element={<TelaClientes />} />
           <Route path="/produtos" element={<TelaProdutos />} />
           <Route path="/pedidos" element={<TelaPedidos />} />
+          <Route path="/relatorios" element={<TelaRelatorios />} />
         </Routes>
       </Container>
     </BrowserRouter>
