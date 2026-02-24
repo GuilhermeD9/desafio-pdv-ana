@@ -2,9 +2,9 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Container } from 'react-bootstrap';
 import NavBar from './components/NavBar';
 import TelaClientes from './pages/TelaClientes';
+import TelaProdutos from './pages/TelaProdutos';
 
 const Home = () => <h2>Bem-vindo ao Sistema de Gestão</h2>;
-const TelaProdutos = () => <h2>Tela de Produtos (Em breve)</h2>;
 const TelaPedidos = () => <h2>Tela de Pedidos (Em breve)</h2>;
 
 function App() {
@@ -24,4 +24,4 @@ function App() {
   );
 }
 
-export default App;
+export default App
