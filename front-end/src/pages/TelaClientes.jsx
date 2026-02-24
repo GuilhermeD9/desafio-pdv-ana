@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
 import { Table, Button, Form, Card, Row, Col, Alert } from 'react-bootstrap';
 import api from '../api/api';
+import Swal from 'sweetalert2';
 
 function TelaClientes() {
   const [clientes, setClientes] = useState([]);
   const [nome, setNome] = useState('');
   const [email, setEmail] = useState('');
-  const [mensagem, setMensagem] = useState('');
 
   useEffect(() => {
     carregarClientes();
@@ -26,21 +26,31 @@ function TelaClientes() {
     e.preventDefault();
     try {
       await api.post('/clientes', { nome: nome, email: email });
-      setMensagem("Cliente cadastrado com sucesso!");
+      
+      Swal.fire({
+        icon: 'success',
+        title: 'Show!',
+        text: 'Cliente cadastrado com sucesso!',
+        showConfirmButton: false,
+        timer: 1500
+      });
+
       setNome('');
       setEmail('');
       carregarClientes();
     } catch (error) {
       console.error("Erro ao salvar:", error);
-      setMensagem("Erro ao cadastrar o cliente.");
+        Swal.fire({
+        icon: 'error',
+        title: 'Oops...',
+        text: 'Erro ao cadastrar o cliente.',
+      });
     }
   };
 
   return (
     <div>
       <h2 className="mb-4">Gestão de Clientes</h2>
-
-      {mensagem && <Alert variant={mensagem.includes('sucesso') ? 'success' : 'danger'}>{mensagem}</Alert>}
 
       <Card className="mb-4 shadow-sm">
         <Card.Body>

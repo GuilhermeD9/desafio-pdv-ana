@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Table, Button, Form, Card, Row, Col, Alert } from 'react-bootstrap';
 import api from '../api/api';
+import Swal from 'sweetalert2';
 
 function TelaProdutos() {
   const [produtos, setProdutos] = useState([]);
@@ -33,22 +34,32 @@ function TelaProdutos() {
       };
 
       await api.post('/produtos', payload);
-      setMensagem("Produto cadastrado com sucesso!");
+      
+        Swal.fire({
+            icon: 'success',
+            title: 'Show!',
+            text: 'Produto cadastrado com sucesso!',
+            showConfirmButton: false,
+            timer: 1500
+        });
+
       setDescricao('');
       setValor('');
       setQuantidade('');
       carregarProdutos();
     } catch (error) {
       console.error("Erro ao salvar:", error);
-      setMensagem("Erro ao cadastrar o produto.");
+        Swal.fire({
+        icon: 'error',
+        title: 'Oops...',
+        text: 'Erro ao cadastrar o produto.',
+    });
     }
   };
 
   return (
     <div>
       <h2 className="mb-4">Gestão de Produtos</h2>
-
-      {mensagem && <Alert variant={mensagem.includes('sucesso') ? 'success' : 'danger'}>{mensagem}</Alert>}
 
       <Card className="mb-4 shadow-sm">
         <Card.Body>
