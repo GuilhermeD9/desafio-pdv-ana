@@ -7,6 +7,7 @@ function TelaClientes() {
   const [clientes, setClientes] = useState([]);
   const [nome, setNome] = useState('');
   const [email, setEmail] = useState('');
+  const [termoBusca, setTermoBusca] = useState('');
 
   useEffect(() => {
     carregarClientes();
@@ -48,6 +49,16 @@ function TelaClientes() {
     }
   };
 
+  const clientesFiltrados = clientes.filter(cliente => {
+    if (termoBusca === '') return true;
+
+    const termo = termoBusca.toLowerCase();
+    const matchNome = cliente.nome.toLowerCase().includes(termo);
+    const matchId = cliente.id.toString() === termo;
+    
+    return matchNome || matchId;
+  })
+
   return (
     <div>
       <h2 className="mb-4">Gestão de Clientes</h2>
@@ -64,7 +75,7 @@ function TelaClientes() {
                     type="text" 
                     placeholder="Digite o nome" 
                     value={nome}
-                    onChange={(e) => setNome(e.target.value)} // Atualiza a memória enquanto digita
+                    onChange={(e) => setNome(e.target.value)}
                     required 
                   />
                 </Form.Group>
@@ -99,6 +110,7 @@ function TelaClientes() {
                 <th>ID</th>
                 <th>Nome</th>
                 <th>E-mail</th>
+                <th>Data de cadastro</th>
               </tr>
             </thead>
             <tbody>
@@ -107,6 +119,7 @@ function TelaClientes() {
                   <td>{cliente.id}</td>
                   <td>{cliente.nome}</td>
                   <td>{cliente.email}</td>
+                  <td>{new Date(cliente.dataCadastro).toLocaleString('pt-BR')}</td>
                 </tr>
               ))}
               {clientes.length === 0 && (
