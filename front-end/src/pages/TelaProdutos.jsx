@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Table, Button, Form, Card, Row, Col, Alert } from 'react-bootstrap';
+import { Table, Button, Form, Card, Row, Col } from 'react-bootstrap';
 import api from '../api/api';
 import Swal from 'sweetalert2';
 
@@ -8,7 +8,8 @@ function TelaProdutos() {
   const [descricao, setDescricao] = useState('');
   const [valor, setValor] = useState('');
   const [quantidade, setQuantidade] = useState('');
-  const [mensagem, setMensagem] = useState('');
+  const [termoBusca, setTermoBusca] = useState('');
+  const [termoAplicado, setTermoAplicado] = useState('');
 
   useEffect(() => {
     carregarProdutos();
@@ -20,7 +21,11 @@ function TelaProdutos() {
       setProdutos(resposta.data);
     } catch (error) {
       console.error("Erro ao buscar produtos:", error);
-      setMensagem("Erro ao carregar a lista de produtos.");
+            Swal.fire({
+              icon: 'error',
+              title: 'Oops...',
+              text: 'Erro ao carregar a lista de produtos.',
+            });
     }
   };
 
@@ -56,6 +61,25 @@ function TelaProdutos() {
     });
     }
   };
+
+  const realizarBusca = () => {
+    setTermoAplicado(termoBusca);
+  };
+
+  const limparBusca = () => {
+    setTermoBusca('');
+    setTermoAplicado('');
+  };
+
+  const produtosFiltrados = produtos.filter(produto => {
+    if (termoAplicado === '') return true;
+
+    const termo = termoAplicado.toLowerCase();
+    const matchDescricao = produto.descricao.toLowerCase().includes(termo);
+    const matchId = produto.id.toString() === termo;
+    
+    return matchDescricao || matchId;
+  });
 
   return (
     <div>
@@ -115,6 +139,28 @@ function TelaProdutos() {
 
       <Card className="shadow-sm">
         <Card.Body>
+          <Row className="mb-3 align-items-center">
+            <Col md={6}>
+              <Card.Title className="mb-0">Lista de Produtos</Card.Title>
+            </Col>
+            <Col md={6}>
+              <div className="d-flex gap-2">
+                <Form.Control
+                  placeholder="Buscar por Descrição ou ID..."
+                  value={termoBusca}
+                  onChange={(e) => setTermoBusca(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' ? realizarBusca() : null}
+                />
+                <Button variant="primary" onClick={realizarBusca}>
+                  Buscar
+                </Button>
+                <Button variant="outline-secondary" onClick={limparBusca}>
+                  Limpar
+                </Button>
+              </div>
+            </Col>
+          </Row>
+
           <Table striped bordered hover responsive>
             <thead className="table-dark">
               <tr>
@@ -125,7 +171,7 @@ function TelaProdutos() {
               </tr>
             </thead>
             <tbody>
-              {produtos.map((produto) => (
+              {produtosFiltrados.map((produto) => (
                 <tr key={produto.id}>
                   <td>{produto.id}</td>
                   <td>{produto.descricao}</td>
@@ -133,9 +179,11 @@ function TelaProdutos() {
                   <td>{produto.quantidade}</td>
                 </tr>
               ))}
-              {produtos.length === 0 && (
+              {produtosFiltrados.length === 0 && (
                 <tr>
-                  <td colSpan="4" className="text-center">Nenhum produto cadastrado.</td>
+                  <td colSpan="4" className="text-center">
+                    {termoAplicado ? 'Nenhum produto encontrado na busca.' : 'Nenhum produto cadastrado.'}
+                  </td>
                 </tr>
               )}
             </tbody>

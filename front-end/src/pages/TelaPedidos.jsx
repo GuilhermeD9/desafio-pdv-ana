@@ -142,7 +142,7 @@ function TelaPedidos() {
                 <Form.Select value={produtoId} onChange={(e) => setProdutoId(e.target.value)}>
                   <option value="">-- Selecione o Produto --</option>
                   {produtos.map(p => (
-                    <option key={p.id} value={p.id}>{p.descricao} - Estoque: {p.quantidade}</option>
+                    <option key={p.id} value={p.id}>{p.descricao} - Estoque: {p.quantidade} - R${p.valor.toFixed(2)}</option>
                   ))}
                 </Form.Select>
               </Form.Group>

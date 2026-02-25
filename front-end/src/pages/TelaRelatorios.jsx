@@ -6,10 +6,8 @@ import api from '../api/api';
 function TelaRelatorios() {
   const [clientes, setClientes] = useState([]);
   const [produtos, setProdutos] = useState([]);
-
   const [pedidos, setPedidos] = useState([]);
   const [totalGasto, setTotalGasto] = useState(null);
-
   const [clienteId, setClienteId] = useState('');
   const [produtoId, setProdutoId] = useState('');
   const [dataInicio, setDataInicio] = useState('');

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Table, Button, Form, Card, Row, Col, Alert } from 'react-bootstrap';
+import { Table, Button, Form, Card, Row, Col, Alert, InputGroup } from 'react-bootstrap';
 import api from '../api/api';
 import Swal from 'sweetalert2';
 
@@ -8,6 +8,7 @@ function TelaClientes() {
   const [nome, setNome] = useState('');
   const [email, setEmail] = useState('');
   const [termoBusca, setTermoBusca] = useState('');
+  const [termoAplicado, setTermoAplicado] = useState('');
 
   useEffect(() => {
     carregarClientes();
@@ -19,7 +20,11 @@ function TelaClientes() {
       setClientes(resposta.data); 
     } catch (error) {
       console.error("Erro ao buscar clientes:", error);
-      setMensagem("Erro ao carregar a lista de clientes.");
+      Swal.fire({
+        icon: 'error',
+        title: 'Oops...',
+        text: 'Erro ao carregar a lista de clientes.',
+      });
     }
   };
 
@@ -49,15 +54,24 @@ function TelaClientes() {
     }
   };
 
-  const clientesFiltrados = clientes.filter(cliente => {
-    if (termoBusca === '') return true;
+const realizarBusca = () => {
+    setTermoAplicado(termoBusca);
+  };
 
-    const termo = termoBusca.toLowerCase();
+  const limparBusca = () => {
+    setTermoBusca('');
+    setTermoAplicado('');
+  };
+
+  const clientesFiltrados = clientes.filter(cliente => {
+    if (termoAplicado === '') return true;
+
+    const termo = termoAplicado.toLowerCase();
     const matchNome = cliente.nome.toLowerCase().includes(termo);
     const matchId = cliente.id.toString() === termo;
     
     return matchNome || matchId;
-  })
+  });
 
   return (
     <div>
@@ -104,6 +118,28 @@ function TelaClientes() {
 
       <Card className="shadow-sm">
         <Card.Body>
+          <Row className='mb-3 align-items-center'>
+            <Col md={6}>
+              <Card.Title className='mv-0'>Lista de Clientes</Card.Title>
+            </Col>
+            <Col md={6}>
+          <div className="d-flex gap-2">
+                <Form.Control
+                  placeholder="Buscar por Nome ou ID..."
+                  value={termoBusca}
+                  onChange={(e) => setTermoBusca(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' ? realizarBusca() : null}
+                />
+                <Button variant="primary" onClick={realizarBusca}>
+                  Buscar
+                </Button>
+                <Button variant="outline-secondary" onClick={limparBusca}>
+                  Limpar
+                </Button>
+              </div>
+            </Col>
+          </Row>
+
           <Table striped bordered hover responsive>
             <thead className="table-dark">
               <tr>
@@ -114,7 +150,7 @@ function TelaClientes() {
               </tr>
             </thead>
             <tbody>
-              {clientes.map((cliente) => (
+              {clientesFiltrados.map((cliente) => (
                 <tr key={cliente.id}>
                   <td>{cliente.id}</td>
                   <td>{cliente.nome}</td>
@@ -122,9 +158,11 @@ function TelaClientes() {
                   <td>{new Date(cliente.dataCadastro).toLocaleString('pt-BR')}</td>
                 </tr>
               ))}
-              {clientes.length === 0 && (
+              {clientesFiltrados.length === 0 && (
                 <tr>
-                  <td colSpan="3" className="text-center">Nenhum cliente cadastrado.</td>
+                  <td colSpan="4" className="text-center">
+                    {termoBusca ? 'Nenhum cliente encontrado na busca.' : 'Nenhum cliente cadastrado.'}
+                  </td>
                 </tr>
               )}
             </tbody>
