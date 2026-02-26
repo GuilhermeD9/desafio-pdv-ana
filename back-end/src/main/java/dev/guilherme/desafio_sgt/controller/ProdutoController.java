@@ -19,14 +19,8 @@ public class ProdutoController {
 
     @PostMapping
     public ResponseEntity<String> cadastrar(@RequestBody Produto produto) {
-        try {
-            produtoService.cadastrar(produto);
-            return ResponseEntity.status(201).body("Produto cadastrado com sucesso!");
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().body("Erro ao cadastrar produto.");
-        }
+        produtoService.cadastrar(produto);
+        return ResponseEntity.status(201).body("Produto cadastrado com sucesso!");
     }
 
     @GetMapping

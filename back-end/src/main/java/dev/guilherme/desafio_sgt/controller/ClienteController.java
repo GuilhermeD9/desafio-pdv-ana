@@ -19,14 +19,8 @@ public class ClienteController {
 
     @PostMapping
     public ResponseEntity<String> cadastrar(@RequestBody Cliente cliente) {
-        try {
-            clienteService.cadastrar(cliente);
-            return ResponseEntity.status(201).body("Cliente cadastrado com sucesso!");
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().body("Erro ao cadastrar cliente.");
-        }
+        clienteService.cadastrar(cliente);
+        return ResponseEntity.status(201).body("Cliente cadastrado com sucesso!");
     }
 
     @GetMapping
