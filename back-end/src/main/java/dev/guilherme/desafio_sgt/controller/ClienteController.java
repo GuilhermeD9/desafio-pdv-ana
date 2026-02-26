@@ -1,9 +1,16 @@
 package dev.guilherme.desafio_sgt.controller;
 
-import dev.guilherme.desafio_sgt.model.Cliente;
+import dev.guilherme.desafio_sgt.dto.cliente.ClienteRequestDTO;
+import dev.guilherme.desafio_sgt.dto.cliente.ClienteResponseDTO;
 import dev.guilherme.desafio_sgt.service.ClienteService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
@@ -18,13 +25,12 @@ public class ClienteController {
     }
 
     @PostMapping
-    public ResponseEntity<String> cadastrar(@RequestBody Cliente cliente) {
-        clienteService.cadastrar(cliente);
-        return ResponseEntity.status(201).body("Cliente cadastrado com sucesso!");
+    public ResponseEntity<ClienteResponseDTO> cadastrar(@RequestBody @Valid ClienteRequestDTO cliente) {
+        return ResponseEntity.status(201).body(clienteService.cadastrar(cliente));
     }
 
     @GetMapping
-    public ResponseEntity<List<Cliente>> listarTodos() {
+    public ResponseEntity<List<ClienteResponseDTO>> listarTodos() {
         return ResponseEntity.ok(clienteService.listarTodos());
     }
 

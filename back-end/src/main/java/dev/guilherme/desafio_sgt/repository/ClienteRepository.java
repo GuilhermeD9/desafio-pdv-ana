@@ -3,8 +3,11 @@ package dev.guilherme.desafio_sgt.repository;
 import dev.guilherme.desafio_sgt.model.Cliente;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
+import java.sql.PreparedStatement;
 import java.util.List;
 
 @Repository
@@ -28,9 +31,22 @@ public class ClienteRepository {
         return cliente;
     };
 
-    public int cadastrar(Cliente cliente) {
+    public Cliente cadastrar(Cliente cliente) {
         String sql = "INSERT INTO cliente (nome, email) VALUES (?, ?)";
-        return jdbcTemplate.update(sql, cliente.getNome(), cliente.getEmail());
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+
+        jdbcTemplate.update(connection -> {
+            PreparedStatement ps = connection.prepareStatement(sql, new String[]{"id"});
+            ps.setString(1, cliente.getNome());
+            ps.setString(2, cliente.getEmail());
+            return ps;
+        }, keyHolder);
+
+        if (keyHolder.getKey() != null) {
+            long idGerado = keyHolder.getKey().longValue();
+            return buscarPorId(idGerado);
+        }
+        return cliente;
     }
 
     public List<Cliente> listarTodos() {

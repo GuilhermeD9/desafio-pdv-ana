@@ -1,12 +1,11 @@
 package dev.guilherme.desafio_sgt.service;
 
+import dev.guilherme.desafio_sgt.dto.cliente.ClienteRequestDTO;
+import dev.guilherme.desafio_sgt.dto.cliente.ClienteResponseDTO;
 import dev.guilherme.desafio_sgt.model.Cliente;
 import dev.guilherme.desafio_sgt.repository.ClienteRepository;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -18,27 +17,49 @@ public class ClienteService {
         this.clienteRepository = clienteRepository;
     }
 
-    public int cadastrar(Cliente cliente) {
-        if (cliente == null || cliente.getNome() == null || cliente.getEmail() == null) {
-            throw new IllegalArgumentException("Dados do cliente incompletos.");
-        }
+    public ClienteResponseDTO cadastrar(ClienteRequestDTO clienteDTO) {
+        Cliente cliente = new Cliente();
+        cliente.setNome(clienteDTO.nome());
+        cliente.setEmail(clienteDTO.email());
 
-        return clienteRepository.cadastrar(cliente);
+        Cliente salvo = clienteRepository.cadastrar(cliente);
+        return new ClienteResponseDTO(salvo.getId(), salvo.getNome(), salvo.getEmail(), salvo.getDataCadastro());
     }
 
-    public List<Cliente> listarTodos() {
-        return clienteRepository.listarTodos();
+    public List<ClienteResponseDTO> listarTodos() {
+        List<Cliente> clientes = clienteRepository.listarTodos();
+        return clientes.stream().map(cliente -> new ClienteResponseDTO(
+                cliente.getId(),
+                cliente.getNome(),
+                cliente.getEmail(),
+                cliente.getDataCadastro()
+        )).toList();
     }
 
-    public List<Cliente> buscar(String termo) {
+    public List<ClienteResponseDTO> buscar(String termo) {
         try {
             Long id = Long.parseLong(termo);
             Cliente cliente = clienteRepository.buscarPorId(id);
-            return Collections.singletonList(cliente);
+
+            ClienteResponseDTO dto = new ClienteResponseDTO(
+                    cliente.getId(),
+                    cliente.getNome(),
+                    cliente.getEmail(),
+                    cliente.getDataCadastro()
+            );
+            return List.of(dto);
+
         } catch (NumberFormatException e) {
-            return clienteRepository.buscarPorNome(termo);
-        } catch (EmptyResultDataAccessException e) {
-            return new ArrayList<>();
+            List<Cliente> clientes = clienteRepository.buscarPorNome(termo);
+
+            return clientes.stream()
+                    .map(c -> new ClienteResponseDTO(
+                            c.getId(),
+                            c.getNome(),
+                            c.getEmail(),
+                            c.getDataCadastro()
+                    ))
+                    .toList();
         }
     }
 }
