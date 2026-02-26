@@ -38,6 +38,6 @@ public class ClienteController {
             return ResponseEntity.ok(clienteService.buscarPorNome(nome));
         }
 
-        return ResponseEntity.badRequest().body("Apenas um dos campos devem ser preenchidos");
+        return ResponseEntity.badRequest().body("Algum um dos campos devem ser preenchidos");
     }
 }
