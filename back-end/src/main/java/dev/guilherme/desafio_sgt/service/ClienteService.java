@@ -23,43 +23,32 @@ public class ClienteService {
         cliente.setEmail(clienteDTO.email());
 
         Cliente salvo = clienteRepository.cadastrar(cliente);
-        return new ClienteResponseDTO(salvo.getId(), salvo.getNome(), salvo.getEmail(), salvo.getDataCadastro());
+        return mapToResponse(salvo);
     }
 
     public List<ClienteResponseDTO> listarTodos() {
-        List<Cliente> clientes = clienteRepository.listarTodos();
-        return clientes.stream().map(cliente -> new ClienteResponseDTO(
+        return clienteRepository.listarTodos().stream()
+                .map(this::mapToResponse)
+                .toList();
+    }
+
+    public ClienteResponseDTO buscarPorId(Long id) {
+        Cliente cliente = clienteRepository.buscarPorId(id);
+        return mapToResponse(cliente);
+    }
+
+    public List<ClienteResponseDTO> buscarPorNome(String nome) {
+        return clienteRepository.buscarPorNome(nome).stream()
+                .map(this::mapToResponse)
+                .toList();
+        }
+
+    private ClienteResponseDTO mapToResponse(Cliente cliente) {
+        return new ClienteResponseDTO(
                 cliente.getId(),
                 cliente.getNome(),
                 cliente.getEmail(),
                 cliente.getDataCadastro()
-        )).toList();
-    }
-
-    public List<ClienteResponseDTO> buscar(String termo) {
-        try {
-            Long id = Long.parseLong(termo);
-            Cliente cliente = clienteRepository.buscarPorId(id);
-
-            ClienteResponseDTO dto = new ClienteResponseDTO(
-                    cliente.getId(),
-                    cliente.getNome(),
-                    cliente.getEmail(),
-                    cliente.getDataCadastro()
-            );
-            return List.of(dto);
-
-        } catch (NumberFormatException e) {
-            List<Cliente> clientes = clienteRepository.buscarPorNome(termo);
-
-            return clientes.stream()
-                    .map(c -> new ClienteResponseDTO(
-                            c.getId(),
-                            c.getNome(),
-                            c.getEmail(),
-                            c.getDataCadastro()
-                    ))
-                    .toList();
-        }
+        );
     }
 }

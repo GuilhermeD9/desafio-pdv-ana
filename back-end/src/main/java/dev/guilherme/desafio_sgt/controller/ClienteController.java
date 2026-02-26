@@ -5,12 +5,7 @@ import dev.guilherme.desafio_sgt.dto.cliente.ClienteResponseDTO;
 import dev.guilherme.desafio_sgt.service.ClienteService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -35,13 +30,14 @@ public class ClienteController {
     }
 
     @GetMapping("/busca")
-    public ResponseEntity<Object> buscar(@RequestParam("termo") String termo) {
-        Object resultado = clienteService.buscar(termo);
-
-        if (resultado != null) {
-            return ResponseEntity.ok(resultado);
-        } else {
-            return ResponseEntity.notFound().build();
+    public ResponseEntity<Object> buscar(@RequestParam(required = false) Long id,
+                                         @RequestParam(required = false) String nome) {
+        if (id != null && nome == null) {
+            return ResponseEntity.ok(clienteService.buscarPorId(id));
+        } else if (id == null && nome != null) {
+            return ResponseEntity.ok(clienteService.buscarPorNome(nome));
         }
+
+        return ResponseEntity.badRequest().body("Apenas um dos campos devem ser preenchidos");
     }
 }
