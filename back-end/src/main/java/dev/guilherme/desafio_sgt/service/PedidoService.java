@@ -73,7 +73,14 @@ public class PedidoService {
     }
 
     public List<PedidoResponseDTO> listarPorClienteId(Long clienteId) {
-        return pedidoRepository.listarPorClienteId(clienteId).stream()
+        List<Pedido> pedidos = pedidoRepository.listarPorClienteId(clienteId);
+
+        for (Pedido pedido : pedidos) {
+            List<ItemPedido> itens = pedidoRepository.buscarItensPorPedidoId(pedido.getId());
+            pedido.setItens(itens);
+        }
+
+        return pedidos.stream()
                 .map(this::mapToResponse)
                 .toList();
     }

@@ -119,4 +119,17 @@ public class PedidoRepository {
         String sql = "SELECT id, cliente_id, data_pedido, valor_total FROM pedido WHERE data_pedido BETWEEN ? AND ?";
         return jdbcTemplate.query(sql, pedidoRowMapper, Timestamp.valueOf(inicio), Timestamp.valueOf(fim));
     }
+
+    public List<ItemPedido> buscarItensPorPedidoId(Long pedidoId) {
+        String sql = "SELECT id, produto_id, quantidade, valor_unitario, desconto FROM item_pedido WHERE pedido_id = ?";
+
+        return jdbcTemplate.query(sql, (rs, rowNum) -> {
+            ItemPedido item = new ItemPedido();
+            item.setProdutoId(rs.getLong("produto_id"));
+            item.setQuantidade(rs.getInt("quantidade"));
+            item.setValorUnitario(rs.getBigDecimal("valor_unitario"));
+            item.setDesconto(rs.getBigDecimal("desconto"));
+            return item;
+        }, pedidoId);
+    }
 }
