@@ -18,6 +18,10 @@ public class ProdutoService {
     }
 
     public ProdutoResponseDTO cadastrar(ProdutoResquetDTO produtoDTO) {
+        if (produtoRepository.produtoExistente(produtoDTO.descricao())) {
+            throw new IllegalArgumentException("O produto fornecido já existe!");
+        }
+
         Produto produto = new Produto();
         produto.setDescricao(produtoDTO.descricao());
         produto.setValor(produtoDTO.valor());

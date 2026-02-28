@@ -65,4 +65,10 @@ public class ProdutoRepository {
         String sql = "SELECT id, descricao, valor, quantidade, data_cadastro FROM produto WHERE descricao ILIKE ?";
         return jdbcTemplate.query(sql, produtoRowMapper, "%" + descricao + "%");
     }
+
+    public boolean produtoExistente(String descricao) {
+        String sql = "SELECT COUNT(*) FROM produto WHERE descricao = ?";
+        Boolean exists = jdbcTemplate.queryForObject(sql, Boolean.class, descricao);
+        return Boolean.TRUE.equals(exists);
+    }
 }

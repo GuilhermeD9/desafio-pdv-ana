@@ -18,6 +18,11 @@ public class ClienteService {
     }
 
     public ClienteResponseDTO cadastrar(ClienteRequestDTO clienteDTO) {
+        boolean emailExists = clienteRepository.emailExistente(clienteDTO.email());
+        if (emailExists) {
+            throw new IllegalArgumentException("O email fornecido já existe!");
+        }
+
         Cliente cliente = new Cliente();
         cliente.setNome(clienteDTO.nome());
         cliente.setEmail(clienteDTO.email());

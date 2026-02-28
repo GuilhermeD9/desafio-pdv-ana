@@ -63,4 +63,10 @@ public class ClienteRepository {
         String sql = "SELECT id, nome, email, data_cadastro FROM cliente WHERE nome ILIKE ?";
         return jdbcTemplate.query(sql, clienteRowMapper, "%" + nome + "%");
     }
+
+    public boolean emailExistente(String email) {
+        String sql = "SELECT COUNT(*) FROM cliente WHERE email = ?";
+        Boolean exists = jdbcTemplate.queryForObject(sql, Boolean.class, email);
+        return Boolean.TRUE.equals(exists);
+    }
 }
