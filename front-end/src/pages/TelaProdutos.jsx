@@ -183,7 +183,12 @@ function TelaProdutos() {
                   placeholder={tipoBusca === 'id' ? "Digite o número do ID..." : "Digite o nome do produto..."}
                   value={termoBusca}
                   onChange={(e) => setTermoBusca(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' ? realizarBusca() : null}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      realizarBusca();
+                    }
+                  }}
                 />
                 <Button variant="primary" onClick={realizarBusca}>
                   Buscar

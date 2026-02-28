@@ -163,13 +163,36 @@ function TelaPedidos() {
             <Col md={2}>
               <Form.Group className="mb-3 mb-md-0">
                 <Form.Label>Qtd</Form.Label>
-                <Form.Control type="number" min="1" value={quantidade} onChange={(e) => setQuantidade(e.target.value)} />
+                <Form.Control 
+                  type="number" 
+                  min="1" 
+                  value={quantidade} 
+                  onChange={(e) => setQuantidade(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      adicionarAoCarrinho();
+                    }
+                  }}
+                />
               </Form.Group>
             </Col>
             <Col md={2}>
               <Form.Group className="mb-3 mb-md-0">
                 <Form.Label>Desconto (R$)</Form.Label>
-                <Form.Control type="number" min="0" step="0.01" value={desconto} onChange={(e) => setDesconto(e.target.value)} />
+                <Form.Control 
+                  type="number" 
+                  min="0" 
+                  step="0.01" 
+                  value={desconto} 
+                  onChange={(e) => setDesconto(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      adicionarAoCarrinho();
+                    }
+                  }}
+                />
               </Form.Group>
             </Col>
             <Col md={3}>

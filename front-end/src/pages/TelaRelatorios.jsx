@@ -138,7 +138,18 @@ function TelaRelatorios() {
             <Tab eventKey="id" title="Por ID">
               <Row>
                 <Col md={8}>
-                  <Form.Control type="number" placeholder="Digite o ID do pedido" value={pedidoId} onChange={e => setPedidoId(e.target.value)} />
+                  <Form.Control 
+                    type="number" 
+                    placeholder="Digite o ID do pedido" 
+                    value={pedidoId} 
+                    onChange={e => setPedidoId(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        buscarPorId();
+                      }
+                    }}
+                  />
                 </Col>
                 <Col md={4}>
                   <Button variant="primary" className="w-100" onClick={buscarPorId}>Buscar</Button>
