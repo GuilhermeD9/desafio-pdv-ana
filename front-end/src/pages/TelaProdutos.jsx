@@ -53,12 +53,17 @@ function TelaProdutos() {
       setQuantidade('');
       carregarProdutos();
     } catch (error) {
-      console.error("Erro ao salvar:", error);
-        Swal.fire({
-        icon: 'error',
-        title: 'Oops...',
-        text: 'Erro ao cadastrar o produto.',
-    });
+      if (error.response && error.response.data) {
+        const dadosErro = error.response.data;
+        if (dadosErro.erro) {
+          Swal.fire({ icon: 'error', title: 'Erro', text: dadosErro.erro });
+        } else {
+          const mensagensValidacao = Object.values(dadosErro).join('\n');
+          Swal.fire({ icon: 'warning', title: 'Dados Inválidos', text: mensagensValidacao });
+        }
+      } else {
+        Swal.fire({ icon: 'error', title: 'Oops...', text: 'Erro ao conectar com o servidor.' });
+      }
     }
   };
 

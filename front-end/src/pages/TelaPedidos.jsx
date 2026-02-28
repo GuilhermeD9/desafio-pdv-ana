@@ -90,7 +90,7 @@ function TelaPedidos() {
       itens: carrinho.map(item => ({
         produtoId: item.produtoId,
         quantidade: item.quantidade,
-        desconto: item.desconto
+        desconto: parseFloat(item.desconto) || 0
       }))
     };
 
@@ -110,7 +110,20 @@ function TelaPedidos() {
       carregarDadosBase();
     } catch (error) {
       console.error("Erro ao salvar pedido:", error);
-      Swal.fire({ icon: 'error', title: 'Ops...', text: error.response?.data || 'Erro ao salvar o pedido. Verifique o estoque.' });
+
+      if (error.response && error.response.data) {
+        const dadosErro = error.response.data;
+
+        if (dadosErro.erro) {
+          Swal.fire({ icon: 'error', title: 'Operação Recusada', text: dadosErro.erro });
+        } 
+        else {
+          const mensagensValidacao = Object.values(dadosErro).join('\n');
+          Swal.fire({ icon: 'warning', title: 'Dados Inválidos', text: mensagensValidacao });
+        }
+      } else {
+        Swal.fire({ icon: 'error', title: 'Ops...', text: 'Não foi possível conectar ao servidor.' });
+      }
     }
   };
 
