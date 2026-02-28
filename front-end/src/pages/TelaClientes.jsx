@@ -9,6 +9,7 @@ function TelaClientes() {
   const [email, setEmail] = useState('');
   const [termoBusca, setTermoBusca] = useState('');
   const [termoAplicado, setTermoAplicado] = useState('');
+  const [tipoBusca, setTipoBusca] = useState('id');
 
   useEffect(() => {
     carregarClientes();
@@ -73,10 +74,16 @@ const realizarBusca = () => {
     if (termoAplicado === '') return true;
 
     const termo = termoAplicado.toLowerCase();
-    const matchNome = cliente.nome.toLowerCase().includes(termo);
-    const matchId = cliente.id.toString() === termo;
+
+    if (tipoBusca === 'id') {
+      return cliente.id.toString() === termo;
+    } 
     
-    return matchNome || matchId;
+    if (tipoBusca === 'nome') {
+      return cliente.nome.toLowerCase().includes(termo);
+    }
+    
+    return false;
   });
 
   return (
@@ -124,14 +131,36 @@ const realizarBusca = () => {
 
       <Card className="shadow-sm">
         <Card.Body>
-          <Row className='mb-3 align-items-center'>
-            <Col md={6}>
-              <Card.Title className='mv-0'>Lista de Clientes</Card.Title>
+          <Row className="mb-3 align-items-end">
+            <Col md={5}>
+              <Card.Title className="mb-0">Lista de Clientes</Card.Title>
             </Col>
-            <Col md={6}>
-          <div className="d-flex gap-2">
+            
+            <Col md={7}>
+              <div className="mb-2 d-flex gap-4">
+                <Form.Check 
+                  type="radio"
+                  id="radio-id"
+                  label="Buscar por ID"
+                  name="tipoBuscaGroup"
+                  value="id"
+                  checked={tipoBusca === 'id'}
+                  onChange={(e) => setTipoBusca(e.target.value)}
+                />
+                <Form.Check 
+                  type="radio"
+                  id="radio-nome"
+                  label="Buscar por Nome"
+                  name="tipoBuscaGroup"
+                  value="nome"
+                  checked={tipoBusca === 'nome'}
+                  onChange={(e) => setTipoBusca(e.target.value)}
+                />
+              </div>
+
+              <InputGroup>
                 <Form.Control
-                  placeholder="Buscar por Nome ou ID..."
+                  placeholder={tipoBusca === 'id' ? "Digite o número do ID..." : "Digite o nome do cliente..."}
                   value={termoBusca}
                   onChange={(e) => setTermoBusca(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' ? realizarBusca() : null}
@@ -142,7 +171,7 @@ const realizarBusca = () => {
                 <Button variant="outline-secondary" onClick={limparBusca}>
                   Limpar
                 </Button>
-              </div>
+              </InputGroup>
             </Col>
           </Row>
 

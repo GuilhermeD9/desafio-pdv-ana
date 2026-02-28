@@ -86,7 +86,14 @@ public class PedidoService {
     }
 
     public List<PedidoResponseDTO> listarPorProdutoId(Long produtoId) {
-        return pedidoRepository.listarPorProdutoId(produtoId).stream()
+        List<Pedido> pedidos = pedidoRepository.listarPorProdutoId(produtoId);
+
+        for (Pedido pedido : pedidos) {
+            List<ItemPedido> itens = pedidoRepository.buscarItensPorPedidoId(pedido.getId());
+            pedido.setItens(itens);
+        }
+
+        return pedidos.stream()
                 .map(this::mapToResponse)
                 .toList();
     }
@@ -97,9 +104,14 @@ public class PedidoService {
 
     public PedidoResponseDTO buscarPorId(Long id) {
         Pedido pedido = pedidoRepository.buscarPorId(id);
+
         if (pedido == null) {
             throw new IllegalArgumentException("Pedido não encontrado para o ID " + id);
         }
+
+        List<ItemPedido> itens = pedidoRepository.buscarItensPorPedidoId(pedido.getId());
+        pedido.setItens(itens);
+
         return mapToResponse(pedido);
     }
 
@@ -110,6 +122,13 @@ public class PedidoService {
 
         LocalDateTime dtInicio = inicio.atStartOfDay();
         LocalDateTime dtFim = fim.atTime(LocalTime.MAX);
+
+        List<Pedido> pedidos = pedidoRepository.buscarPorPeriodo(dtInicio, dtFim);
+
+        for (Pedido pedido : pedidos) {
+            List<ItemPedido> itens = pedidoRepository.buscarItensPorPedidoId(pedido.getId());
+            pedido.setItens(itens);
+        }
 
         return pedidoRepository.buscarPorPeriodo(dtInicio, dtFim).stream()
                 .map(this::mapToResponse)
