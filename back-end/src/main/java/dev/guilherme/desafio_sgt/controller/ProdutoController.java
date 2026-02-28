@@ -1,7 +1,9 @@
 package dev.guilherme.desafio_sgt.controller;
 
-import dev.guilherme.desafio_sgt.model.Produto;
+import dev.guilherme.desafio_sgt.dto.produto.ProdutoResponseDTO;
+import dev.guilherme.desafio_sgt.dto.produto.ProdutoResquetDTO;
 import dev.guilherme.desafio_sgt.service.ProdutoService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,30 +20,24 @@ public class ProdutoController {
     }
 
     @PostMapping
-    public ResponseEntity<String> cadastrar(@RequestBody Produto produto) {
-        try {
-            produtoService.cadastrar(produto);
-            return ResponseEntity.status(201).body("Produto cadastrado com sucesso!");
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().body("Erro ao cadastrar produto.");
-        }
+    public ResponseEntity<ProdutoResponseDTO> cadastrar(@RequestBody @Valid ProdutoResquetDTO produto) {
+        return ResponseEntity.status(201).body(produtoService.cadastrar(produto));
     }
 
     @GetMapping
-    public ResponseEntity<List<Produto>> listarTodos() {
+    public ResponseEntity<List<ProdutoResponseDTO>> listarTodos() {
         return ResponseEntity.ok(produtoService.listarTodos());
     }
 
     @GetMapping("/buscar")
-    public ResponseEntity<Object> buscar(@RequestParam("termo") String termo) {
-        Object resultado = produtoService.buscar(termo);
-
-        if (resultado != null) {
-            return ResponseEntity.ok(resultado);
-        } else {
-            return ResponseEntity.notFound().build();
+    public ResponseEntity<Object> buscar(@RequestParam(required = false) Long id,
+                                         @RequestParam(required = false) String descricao) {
+        if (id != null && descricao == null) {
+            return ResponseEntity.ok(produtoService.buscarPorId(id));
+        } else if (id == null && descricao != null){
+            return ResponseEntity.ok(produtoService.buscarPorDescricao(descricao));
         }
+
+        return ResponseEntity.badRequest().body("Algum dos campos devem ser preenchidos");
     }
 }

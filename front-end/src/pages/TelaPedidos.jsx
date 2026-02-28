@@ -25,7 +25,6 @@ function TelaPedidos() {
       setClientes(respClientes.data);
       setProdutos(respProdutos.data);
     } catch (error) {
-      console.error("Erro ao buscar dados:", error);
       Swal.fire({ icon: 'error', title: 'Erro', text: 'Falha ao carregar clientes ou produtos.' });
     }
   };
@@ -90,7 +89,7 @@ function TelaPedidos() {
       itens: carrinho.map(item => ({
         produtoId: item.produtoId,
         quantidade: item.quantidade,
-        desconto: item.desconto
+        desconto: parseFloat(item.desconto) || 0
       }))
     };
 
@@ -109,8 +108,20 @@ function TelaPedidos() {
       setCarrinho([]);
       carregarDadosBase();
     } catch (error) {
-      console.error("Erro ao salvar pedido:", error);
-      Swal.fire({ icon: 'error', title: 'Ops...', text: error.response?.data || 'Erro ao salvar o pedido. Verifique o estoque.' });
+
+      if (error.response && error.response.data) {
+        const dadosErro = error.response.data;
+
+        if (dadosErro.erro) {
+          Swal.fire({ icon: 'error', title: 'Operação Recusada', text: dadosErro.erro });
+        } 
+        else {
+          const mensagensValidacao = Object.values(dadosErro).join('\n');
+          Swal.fire({ icon: 'warning', title: 'Dados Inválidos', text: mensagensValidacao });
+        }
+      } else {
+        Swal.fire({ icon: 'error', title: 'Ops...', text: 'Não foi possível conectar ao servidor.' });
+      }
     }
   };
 
@@ -150,13 +161,36 @@ function TelaPedidos() {
             <Col md={2}>
               <Form.Group className="mb-3 mb-md-0">
                 <Form.Label>Qtd</Form.Label>
-                <Form.Control type="number" min="1" value={quantidade} onChange={(e) => setQuantidade(e.target.value)} />
+                <Form.Control 
+                  type="number" 
+                  min="1" 
+                  value={quantidade} 
+                  onChange={(e) => setQuantidade(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      adicionarAoCarrinho();
+                    }
+                  }}
+                />
               </Form.Group>
             </Col>
             <Col md={2}>
               <Form.Group className="mb-3 mb-md-0">
                 <Form.Label>Desconto (R$)</Form.Label>
-                <Form.Control type="number" min="0" step="0.01" value={desconto} onChange={(e) => setDesconto(e.target.value)} />
+                <Form.Control 
+                  type="number" 
+                  min="0" 
+                  step="0.01" 
+                  value={desconto} 
+                  onChange={(e) => setDesconto(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      adicionarAoCarrinho();
+                    }
+                  }}
+                />
               </Form.Group>
             </Col>
             <Col md={3}>

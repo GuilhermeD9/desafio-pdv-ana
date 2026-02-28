@@ -1,10 +1,17 @@
 package dev.guilherme.desafio_sgt.controller;
 
-import dev.guilherme.desafio_sgt.model.Pedido;
+import dev.guilherme.desafio_sgt.dto.pedido.PedidoRequestDTO;
+import dev.guilherme.desafio_sgt.dto.pedido.PedidoResponseDTO;
 import dev.guilherme.desafio_sgt.service.PedidoService;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -21,17 +28,17 @@ public class PedidoController {
     }
 
     @PostMapping
-    public ResponseEntity<Pedido> cadastrar(@RequestBody Pedido pedido) {
+    public ResponseEntity<PedidoResponseDTO> cadastrar(@RequestBody PedidoRequestDTO pedido) {
         return ResponseEntity.status(201).body(pedidoService.cadastrar(pedido));
     }
 
     @GetMapping("/cliente")
-    public ResponseEntity<List<Pedido>> listarPorClienteId(@RequestParam("clienteId") Long clienteId) {
+    public ResponseEntity<List<PedidoResponseDTO>> listarPorClienteId(@RequestParam("clienteId") Long clienteId) {
         return ResponseEntity.ok(pedidoService.listarPorClienteId(clienteId));
     }
 
     @GetMapping("/produto")
-    public ResponseEntity<List<Pedido>> listarPorProdutoId(@RequestParam("produtoId")Long produtoId) {
+    public ResponseEntity<List<PedidoResponseDTO>> listarPorProdutoId(@RequestParam("produtoId")Long produtoId) {
         return ResponseEntity.ok(pedidoService.listarPorProdutoId(produtoId));
     }
 
@@ -41,12 +48,12 @@ public class PedidoController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Pedido> buscarPorId(@PathVariable("id") Long id) {
+    public ResponseEntity<PedidoResponseDTO> buscarPorId(@PathVariable("id") Long id) {
         return ResponseEntity.ok(pedidoService.buscarPorId(id));
     }
 
     @GetMapping("/buscar/periodo")
-    public ResponseEntity<List<Pedido>> buscarPorPeriodo(
+    public ResponseEntity<List<PedidoResponseDTO>> buscarPorPeriodo(
             @RequestParam("inicio") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate inicio,
             @RequestParam("fim") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fim) {
         return ResponseEntity.ok(pedidoService.buscarPorPeriodo(inicio, fim));

@@ -8,6 +8,8 @@ function TelaRelatorios() {
   const [produtos, setProdutos] = useState([]);
   const [pedidos, setPedidos] = useState([]);
   const [totalGasto, setTotalGasto] = useState(null);
+  const [modoExibicao, setModoExibicao] = useState('tabela');
+  const [pedidoDetalhado, setPedidoDetalhado] = useState(null);
   const [clienteId, setClienteId] = useState('');
   const [produtoId, setProdutoId] = useState('');
   const [dataInicio, setDataInicio] = useState('');
@@ -22,7 +24,6 @@ function TelaRelatorios() {
         setClientes(resClientes.data);
         setProdutos(resProdutos.data);
       } catch (error) {
-        console.error("Erro ao carregar dados base", error);
       }
     }
     carregarDados();
@@ -35,6 +36,7 @@ function TelaRelatorios() {
       const resTotal = await api.get(`/pedidos/cliente/valorTotal?clienteId=${clienteId}`);
       setPedidos(resPedidos.data);
       setTotalGasto(resTotal.data);
+      setModoExibicao('tabela')
     } catch (error) {
       setPedidos([]);
       setTotalGasto(null);
@@ -48,6 +50,7 @@ function TelaRelatorios() {
       const res = await api.get(`/pedidos/produto?produtoId=${produtoId}`);
       setPedidos(res.data);
       setTotalGasto(null);
+      setModoExibicao('tabela')
     } catch (error) {
       setPedidos([]);
       Swal.fire('Ops', 'Nenhum pedido encontrado com este produto.', 'info');
@@ -59,7 +62,8 @@ function TelaRelatorios() {
     try {
       const res = await api.get(`/pedidos/buscar/periodo?inicio=${dataInicio}&fim=${dataFim}`);
       setPedidos(res.data);
-      setTotalGasto(null);
+      setTotalGasto(null);        
+      setModoExibicao('tabela')
     } catch (error) {
       setPedidos([]);
       Swal.fire('Ops', 'Nenhum pedido encontrado neste período.', 'info');
@@ -70,10 +74,12 @@ function TelaRelatorios() {
     if (!pedidoId) return Swal.fire('Atenção', 'Digite o ID do pedido.', 'warning');
     try {
       const res = await api.get(`/pedidos/${pedidoId}`);
-      setPedidos([res.data]); 
+      setPedidoDetalhado(res.data); 
       setTotalGasto(null);
+      setModoExibicao('detalhe')
     } catch (error) {
-      setPedidos([]);
+      setPedidoDetalhado(null);
+      setModoExibicao('tabela')
       Swal.fire('Ops', 'Pedido não encontrado.', 'error');
     }
   };
@@ -131,7 +137,18 @@ function TelaRelatorios() {
             <Tab eventKey="id" title="Por ID">
               <Row>
                 <Col md={8}>
-                  <Form.Control type="number" placeholder="Digite o ID do pedido" value={pedidoId} onChange={e => setPedidoId(e.target.value)} />
+                  <Form.Control 
+                    type="number" 
+                    placeholder="Digite o ID do pedido" 
+                    value={pedidoId} 
+                    onChange={e => setPedidoId(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        buscarPorId();
+                      }
+                    }}
+                  />
                 </Col>
                 <Col md={4}>
                   <Button variant="primary" className="w-100" onClick={buscarPorId}>Buscar</Button>
@@ -153,31 +170,87 @@ function TelaRelatorios() {
             </div>
           )}
 
-          <Table striped bordered hover responsive className="mt-3">
-            <thead className="table-dark">
-              <tr>
-                <th>ID do Pedido</th>
-                <th>Data</th>
-                <th>ID do Cliente</th>
-                <th>Qtd de Itens Diferentes</th>
-                <th>Valor Total (R$)</th>
-              </tr>
-            </thead>
-            <tbody>
-              {pedidos.map(pedido => (
-                <tr key={pedido.id}>
-                  <td>{pedido.id}</td>
-                  <td>{new Date(pedido.dataPedido).toLocaleString('pt-BR')}</td>
-                  <td>{pedido.clienteId}</td>
-                  <td>{pedido.itens ? pedido.itens.length : 0}</td>
-                  <td className="fw-bold">R$ {pedido.valorTotal.toFixed(2)}</td>
+          {modoExibicao === 'tabela' && (
+            <Table striped bordered hover responsive className="mt-3">
+              <thead className="table-dark">
+                <tr>
+                  <th>ID do Pedido</th>
+                  <th>Data</th>
+                  <th>ID do Cliente</th>
+                  <th className="text-center">Qtd de Itens Diferentes</th>
+                  <th>Valor Total (R$)</th>
                 </tr>
-              ))}
-              {pedidos.length === 0 && (
-                <tr><td colSpan="5" className="text-center">Faça uma busca para ver os resultados.</td></tr>
-              )}
-            </tbody>
-          </Table>
+              </thead>
+              <tbody>
+                {pedidos.map(pedido => (
+                  <tr key={pedido.id}>
+                    <td>{pedido.id}</td>
+                    <td>{new Date(pedido.dataPedido).toLocaleString('pt-BR')}</td>
+                    <td>{pedido.clienteId}</td>
+                    <td className="text-center">{pedido.itens ? pedido.itens.length : 0}</td>
+                    <td className="fw-bold">R$ {pedido.valorTotal.toFixed(2)}</td>
+                  </tr>
+                ))}
+                {pedidos.length === 0 && (
+                  <tr><td colSpan="5" className="text-center">Faça uma busca para ver os resultados.</td></tr>
+                )}
+              </tbody>
+            </Table>
+          )}
+
+          {modoExibicao === 'detalhe' && pedidoDetalhado && (
+            <div className="mt-4 p-4 border rounded bg-light border-primary">
+              <Row className="mb-3 border-bottom pb-2">
+                <Col md={6}>
+                  <h4 className="text-primary mb-0">Detalhes do Pedido #{pedidoDetalhado.id}</h4>
+                </Col>
+                <Col md={6} className="text-md-end text-muted mt-2 mt-md-0">
+                  Data: {new Date(pedidoDetalhado.dataPedido).toLocaleString('pt-BR')}
+                </Col>
+              </Row>
+
+              <Row className="mb-4">
+                <Col md={12}>
+                  <h6 className="fw-bold">Informações do Cliente:</h6>
+                  <p className="mb-0">
+                    {clientes.find(c => c.id === pedidoDetalhado.clienteId)?.nome || `Cliente ID: ${pedidoDetalhado.clienteId}`}
+                  </p>
+                </Col>
+              </Row>
+
+              <h6 className="fw-bold text-secondary">Itens Comprados</h6>
+              <Table size="sm" striped bordered hover responsive className="mt-2 bg-white">
+                <thead className="table-secondary">
+                  <tr>
+                    <th>Produto</th>
+                    <th className="text-center">Qtd</th>
+                    <th>Valor Unit. (R$)</th>
+                    <th>Subtotal (R$)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {pedidoDetalhado.itens && pedidoDetalhado.itens.length > 0 ? (
+                    pedidoDetalhado.itens.map((item, index) => (
+                      <tr key={index}>
+                        <td>{item.descricao || `Produto ${item.produtoId}`}</td>
+                        <td className="text-center">{item.quantidade}</td>
+                        <td>{item.valorUnitario.toFixed(2)}</td>
+                        <td>{item.subtotal.toFixed(2)}</td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr><td colSpan="4" className="text-center">Nenhum item encontrado neste pedido.</td></tr>
+                  )}
+                </tbody>
+              </Table>
+              
+              <div className="d-flex justify-content-end mt-4">
+                <h4 className="text-success fw-bold border p-2 rounded bg-white shadow-sm">
+                  Valor do pedido: R$ {pedidoDetalhado.valorTotal.toFixed(2)}
+                </h4>
+              </div>
+            </div>
+          )}
         </Card.Body>
       </Card>
     </div>

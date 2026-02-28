@@ -1,12 +1,11 @@
 package dev.guilherme.desafio_sgt.service;
 
+import dev.guilherme.desafio_sgt.dto.produto.ProdutoResponseDTO;
+import dev.guilherme.desafio_sgt.dto.produto.ProdutoResquetDTO;
 import dev.guilherme.desafio_sgt.model.Produto;
 import dev.guilherme.desafio_sgt.repository.ProdutoRepository;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -18,27 +17,44 @@ public class ProdutoService {
         this.produtoRepository = produtoRepository;
     }
 
-    public int cadastrar(Produto produto) {
-        if (produto == null || produto.getDescricao() == null || produto.getValor() == null || produto.getQuantidade() == null) {
-            throw new IllegalArgumentException("Dados do produto incompletos.");
+    public ProdutoResponseDTO cadastrar(ProdutoResquetDTO produtoDTO) {
+        if (produtoRepository.produtoExistente(produtoDTO.descricao())) {
+            throw new IllegalArgumentException("O produto fornecido já existe!");
         }
 
-        return produtoRepository.cadastrar(produto);
+        Produto produto = new Produto();
+        produto.setDescricao(produtoDTO.descricao());
+        produto.setValor(produtoDTO.valor());
+        produto.setQuantidade(produtoDTO.quantidade());
+
+        Produto salvo = produtoRepository.cadastrar(produto);
+        return mapToResponse(salvo);
     }
 
-    public List<Produto> listarTodos() {
-        return produtoRepository.listarTodos();
+    public List<ProdutoResponseDTO> listarTodos() {
+        return produtoRepository.listarTodos().stream()
+                .map(this::mapToResponse)
+                .toList();
     }
 
-    public List<Produto> buscar(String termo) {
-        try {
-            Long id = Long.parseLong(termo);
-            Produto produto = produtoRepository.buscarPorId(id);
-            return Collections.singletonList(produto);
-        } catch (NumberFormatException e) {
-            return produtoRepository.buscarPorDescricao(termo);
-        } catch (EmptyResultDataAccessException e) {
-            return new ArrayList<>();
-        }
+    public ProdutoResponseDTO buscarPorId(Long id) {
+        Produto produto = produtoRepository.buscarPorId(id);
+        return mapToResponse(produto);
+    }
+
+    public List<ProdutoResponseDTO> buscarPorDescricao(String descricao) {
+        return produtoRepository.buscarPorDescricao(descricao).stream()
+                .map(this::mapToResponse)
+                .toList();
+    }
+
+    private ProdutoResponseDTO mapToResponse(Produto produto) {
+        return new ProdutoResponseDTO(
+                produto.getId(),
+                produto.getDescricao(),
+                produto.getValor(),
+                produto.getQuantidade(),
+                produto.getDataCadastro()
+        );
     }
 }

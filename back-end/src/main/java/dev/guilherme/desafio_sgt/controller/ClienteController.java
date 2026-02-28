@@ -1,7 +1,9 @@
 package dev.guilherme.desafio_sgt.controller;
 
-import dev.guilherme.desafio_sgt.model.Cliente;
+import dev.guilherme.desafio_sgt.dto.cliente.ClienteRequestDTO;
+import dev.guilherme.desafio_sgt.dto.cliente.ClienteResponseDTO;
 import dev.guilherme.desafio_sgt.service.ClienteService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,30 +20,24 @@ public class ClienteController {
     }
 
     @PostMapping
-    public ResponseEntity<String> cadastrar(@RequestBody Cliente cliente) {
-        try {
-            clienteService.cadastrar(cliente);
-            return ResponseEntity.status(201).body("Cliente cadastrado com sucesso!");
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().body("Erro ao cadastrar cliente.");
-        }
+    public ResponseEntity<ClienteResponseDTO> cadastrar(@RequestBody @Valid ClienteRequestDTO cliente) {
+        return ResponseEntity.status(201).body(clienteService.cadastrar(cliente));
     }
 
     @GetMapping
-    public ResponseEntity<List<Cliente>> listarTodos() {
+    public ResponseEntity<List<ClienteResponseDTO>> listarTodos() {
         return ResponseEntity.ok(clienteService.listarTodos());
     }
 
     @GetMapping("/busca")
-    public ResponseEntity<Object> buscar(@RequestParam("termo") String termo) {
-        Object resultado = clienteService.buscar(termo);
-
-        if (resultado != null) {
-            return ResponseEntity.ok(resultado);
-        } else {
-            return ResponseEntity.notFound().build();
+    public ResponseEntity<Object> buscar(@RequestParam(required = false) Long id,
+                                         @RequestParam(required = false) String nome) {
+        if (id != null && nome == null) {
+            return ResponseEntity.ok(clienteService.buscarPorId(id));
+        } else if (id == null && nome != null) {
+            return ResponseEntity.ok(clienteService.buscarPorNome(nome));
         }
+
+        return ResponseEntity.badRequest().body("Algum um dos campos devem ser preenchidos");
     }
 }

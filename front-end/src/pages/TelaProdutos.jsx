@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Table, Button, Form, Card, Row, Col } from 'react-bootstrap';
+import { Table, Button, Form, Card, Row, Col, InputGroup } from 'react-bootstrap';
 import api from '../api/api';
 import Swal from 'sweetalert2';
 
@@ -10,6 +10,7 @@ function TelaProdutos() {
   const [quantidade, setQuantidade] = useState('');
   const [termoBusca, setTermoBusca] = useState('');
   const [termoAplicado, setTermoAplicado] = useState('');
+  const [tipoBusca, setTipoBusca] = useState('id');
 
   useEffect(() => {
     carregarProdutos();
@@ -20,7 +21,6 @@ function TelaProdutos() {
       const resposta = await api.get('/produtos');
       setProdutos(resposta.data);
     } catch (error) {
-      console.error("Erro ao buscar produtos:", error);
             Swal.fire({
               icon: 'error',
               title: 'Oops...',
@@ -53,12 +53,17 @@ function TelaProdutos() {
       setQuantidade('');
       carregarProdutos();
     } catch (error) {
-      console.error("Erro ao salvar:", error);
-        Swal.fire({
-        icon: 'error',
-        title: 'Oops...',
-        text: 'Erro ao cadastrar o produto.',
-    });
+      if (error.response && error.response.data) {
+        const dadosErro = error.response.data;
+        if (dadosErro.erro) {
+          Swal.fire({ icon: 'error', title: 'Erro', text: dadosErro.erro });
+        } else {
+          const mensagensValidacao = Object.values(dadosErro).join('\n');
+          Swal.fire({ icon: 'warning', title: 'Dados Inválidos', text: mensagensValidacao });
+        }
+      } else {
+        Swal.fire({ icon: 'error', title: 'Oops...', text: 'Erro ao conectar com o servidor.' });
+      }
     }
   };
 
@@ -75,10 +80,16 @@ function TelaProdutos() {
     if (termoAplicado === '') return true;
 
     const termo = termoAplicado.toLowerCase();
-    const matchDescricao = produto.descricao.toLowerCase().includes(termo);
-    const matchId = produto.id.toString() === termo;
+
+    if (tipoBusca === 'id') {
+      return produto.id.toString() === termo;
+    } 
     
-    return matchDescricao || matchId;
+    if (tipoBusca === 'descricao') {
+      return produto.descricao.toLowerCase().includes(termo);
+    }
+    
+    return false;
   });
 
   return (
@@ -139,17 +150,44 @@ function TelaProdutos() {
 
       <Card className="shadow-sm">
         <Card.Body>
-          <Row className="mb-3 align-items-center">
-            <Col md={6}>
+          <Row className="mb-3 align-items-end">
+            <Col md={5}>
               <Card.Title className="mb-0">Lista de Produtos</Card.Title>
             </Col>
-            <Col md={6}>
-              <div className="d-flex gap-2">
+            
+            <Col md={7}>
+              <div className="mb-2 d-flex gap-4">
+                <Form.Check 
+                  type="radio"
+                  id="radio-id"
+                  label="Buscar por ID"
+                  name="tipoBuscaGroup"
+                  value="id"
+                  checked={tipoBusca === 'id'}
+                  onChange={(e) => setTipoBusca(e.target.value)}
+                />
+                <Form.Check 
+                  type="radio"
+                  id="radio-descricao"
+                  label="Buscar por Descrição"
+                  name="tipoBuscaGroup"
+                  value="descricao"
+                  checked={tipoBusca === 'descricao'}
+                  onChange={(e) => setTipoBusca(e.target.value)}
+                />
+              </div>
+
+              <InputGroup>
                 <Form.Control
-                  placeholder="Buscar por Descrição ou ID..."
+                  placeholder={tipoBusca === 'id' ? "Digite o número do ID..." : "Digite o nome do produto..."}
                   value={termoBusca}
                   onChange={(e) => setTermoBusca(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' ? realizarBusca() : null}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      realizarBusca();
+                    }
+                  }}
                 />
                 <Button variant="primary" onClick={realizarBusca}>
                   Buscar
@@ -157,7 +195,7 @@ function TelaProdutos() {
                 <Button variant="outline-secondary" onClick={limparBusca}>
                   Limpar
                 </Button>
-              </div>
+              </InputGroup>
             </Col>
           </Row>
 

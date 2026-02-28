@@ -7,7 +7,6 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.sql.PreparedStatement;
@@ -47,7 +46,6 @@ public class PedidoRepository {
         return item;
     };
 
-    @Transactional
     public Pedido cadastrar(Pedido pedido) {
         String sql = "INSERT INTO pedido (cliente_id, data_pedido, valor_total) VALUES (?, ?, ?)";
         KeyHolder keyHolder = new GeneratedKeyHolder();
@@ -120,5 +118,18 @@ public class PedidoRepository {
     public List<Pedido> buscarPorPeriodo(LocalDateTime inicio, LocalDateTime fim) {
         String sql = "SELECT id, cliente_id, data_pedido, valor_total FROM pedido WHERE data_pedido BETWEEN ? AND ?";
         return jdbcTemplate.query(sql, pedidoRowMapper, Timestamp.valueOf(inicio), Timestamp.valueOf(fim));
+    }
+
+    public List<ItemPedido> buscarItensPorPedidoId(Long pedidoId) {
+        String sql = "SELECT id, produto_id, quantidade, valor_unitario, desconto FROM item_pedido WHERE pedido_id = ?";
+
+        return jdbcTemplate.query(sql, (rs, rowNum) -> {
+            ItemPedido item = new ItemPedido();
+            item.setProdutoId(rs.getLong("produto_id"));
+            item.setQuantidade(rs.getInt("quantidade"));
+            item.setValorUnitario(rs.getBigDecimal("valor_unitario"));
+            item.setDesconto(rs.getBigDecimal("desconto"));
+            return item;
+        }, pedidoId);
     }
 }
