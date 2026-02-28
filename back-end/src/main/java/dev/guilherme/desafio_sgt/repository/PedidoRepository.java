@@ -7,7 +7,6 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.sql.PreparedStatement;
@@ -47,7 +46,6 @@ public class PedidoRepository {
         return item;
     };
 
-    @Transactional
     public Pedido cadastrar(Pedido pedido) {
         String sql = "INSERT INTO pedido (cliente_id, data_pedido, valor_total) VALUES (?, ?, ?)";
         KeyHolder keyHolder = new GeneratedKeyHolder();

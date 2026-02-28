@@ -1,16 +1,22 @@
 package dev.guilherme.desafio_sgt.service;
 
+import dev.guilherme.desafio_sgt.dto.pedido.ItemPedidoRequestDTO;
+import dev.guilherme.desafio_sgt.dto.pedido.ItemPedidoResponseDTO;
+import dev.guilherme.desafio_sgt.dto.pedido.PedidoRequestDTO;
+import dev.guilherme.desafio_sgt.dto.pedido.PedidoResponseDTO;
 import dev.guilherme.desafio_sgt.model.ItemPedido;
 import dev.guilherme.desafio_sgt.model.Pedido;
 import dev.guilherme.desafio_sgt.model.Produto;
 import dev.guilherme.desafio_sgt.repository.PedidoRepository;
 import dev.guilherme.desafio_sgt.repository.ProdutoRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -24,61 +30,73 @@ public class PedidoService {
         this.produtoRepository = produtoRepository;
     }
 
-    public Pedido cadastrar(Pedido pedido) {
-        if (pedido == null || pedido.getClienteId() == null || pedido.getItens() == null || pedido.getItens().isEmpty()) {
-            throw new IllegalArgumentException("Dados do pedido incompletos.");
-        }
+    @Transactional
+    public PedidoResponseDTO cadastrar(PedidoRequestDTO pedidoDto) {
 
+        Pedido pedido = new Pedido();
+        pedido.setClienteId(pedidoDto.clienteId());
         BigDecimal valorTotal = BigDecimal.ZERO;
+        List<ItemPedido> itensParaGuardar = new ArrayList<>();
 
-        for (ItemPedido item : pedido.getItens()) {
-            Produto produto = produtoRepository.buscarPorId(item.getProdutoId());
-            if (produto == null) {
-                throw new IllegalArgumentException("Produto com ID " + item.getProdutoId() + " não encontrado.");
+        for (ItemPedidoRequestDTO item : pedidoDto.itens()) {
+            Produto produto = produtoRepository.buscarPorId(item.produtoId());
+
+            if (produto.getQuantidade() < item.quantidade()) {
+                throw new IllegalArgumentException(
+                        "Estoque insuficiente para o produto '" + produto.getDescricao() +
+                                "'. Disponível: " + produto.getQuantidade()
+                );
             }
 
-            if (produto.getQuantidade() < item.getQuantidade()) {
-                throw new IllegalArgumentException("Estoque insuficiente para o produto: " + produto.getDescricao());
-            }
+            BigDecimal desconto = item.desconto() != null ? item.desconto() : BigDecimal.ZERO;
 
-            item.setValorUnitario(produto.getValor());
+            ItemPedido itemPedido = new ItemPedido();
+            itemPedido.setProdutoId(produto.getId());
+            itemPedido.setQuantidade(item.quantidade());
+            itemPedido.setValorUnitario(produto.getValor());
+            itemPedido.setDesconto(desconto);
 
-            if (item.getDesconto() == null) {
-                item.setDesconto(BigDecimal.ZERO);
-            }
-
-            BigDecimal subtotalItem = item.getValorUnitario()
-                    .multiply(BigDecimal.valueOf(item.getQuantidade()))
-                    .subtract(item.getDesconto());
+            BigDecimal subtotalItem = itemPedido.getValorUnitario()
+                    .multiply(BigDecimal.valueOf(itemPedido.getQuantidade()))
+                    .subtract(desconto);
 
             valorTotal = valorTotal.add(subtotalItem);
+            itensParaGuardar.add(itemPedido);
         }
 
         pedido.setValorTotal(valorTotal);
-        return pedidoRepository.cadastrar(pedido);
+        pedido.setItens(itensParaGuardar);
+
+        Pedido salvo = pedidoRepository.cadastrar(pedido);
+
+        return mapToResponse(salvo);
     }
 
-    public List<Pedido> listarPorClienteId(Long clienteId) {
-        return pedidoRepository.listarPorClienteId(clienteId);
+    public List<PedidoResponseDTO> listarPorClienteId(Long clienteId) {
+        return pedidoRepository.listarPorClienteId(clienteId).stream()
+                .map(this::mapToResponse)
+                .toList();
     }
 
-    public List<Pedido> listarPorProdutoId(Long produtoId) {
-        return pedidoRepository.listarPorProdutoId(produtoId);
+    public List<PedidoResponseDTO> listarPorProdutoId(Long produtoId) {
+        return pedidoRepository.listarPorProdutoId(produtoId).stream()
+                .map(this::mapToResponse)
+                .toList();
     }
 
     public BigDecimal buscarValorTotalPorCliente(Long clienteId) {
         return pedidoRepository.buscarValorTotalPorCliente(clienteId);
     }
 
-    public Pedido buscarPorId(Long id) {
+    public PedidoResponseDTO buscarPorId(Long id) {
         Pedido pedido = pedidoRepository.buscarPorId(id);
         if (pedido == null) {
             throw new IllegalArgumentException("Pedido não encontrado para o ID " + id);
         }
-        return pedido;
+        return mapToResponse(pedido);
     }
 
-    public List<Pedido> buscarPorPeriodo(LocalDate inicio, LocalDate fim) {
+    public List<PedidoResponseDTO> buscarPorPeriodo(LocalDate inicio, LocalDate fim) {
         if (inicio == null || fim == null) {
             throw new IllegalArgumentException("As datas de início e fim são obrigatórias.");
         }
@@ -86,6 +104,32 @@ public class PedidoService {
         LocalDateTime dtInicio = inicio.atStartOfDay();
         LocalDateTime dtFim = fim.atTime(LocalTime.MAX);
 
-        return pedidoRepository.buscarPorPeriodo(dtInicio, dtFim);
+        return pedidoRepository.buscarPorPeriodo(dtInicio, dtFim).stream()
+                .map(this::mapToResponse)
+                .toList();
+    }
+
+    private PedidoResponseDTO mapToResponse(Pedido pedido) {
+        List<ItemPedidoResponseDTO> itensResponse = pedido.getItens().stream()
+                .map(item -> {
+                    Produto produto = produtoRepository.buscarPorId(item.getProdutoId());
+
+                    return new ItemPedidoResponseDTO(
+                            item.getProdutoId(),
+                            produto.getDescricao(),
+                            item.getQuantidade(),
+                            item.getValorUnitario(),
+                            item.getValorUnitario().multiply(BigDecimal.valueOf(item.getQuantidade())).subtract(item.getDesconto())
+                    );
+                })
+                .toList();
+
+        return new PedidoResponseDTO(
+                pedido.getId(),
+                pedido.getClienteId(),
+                pedido.getDataPedido(),
+                pedido.getValorTotal(),
+                itensResponse
+        );
     }
 }

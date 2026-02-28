@@ -9,5 +9,5 @@ public record PedidoResponseDTO(
         Long clienteId,
         LocalDateTime dataPedido,
         BigDecimal valorTotal,
-        List<ItemPedidoRequestDTO> itens
+        List<ItemPedidoResponseDTO> itens
 ) {}
