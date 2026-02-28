@@ -24,7 +24,6 @@ function TelaRelatorios() {
         setClientes(resClientes.data);
         setProdutos(resProdutos.data);
       } catch (error) {
-        console.error("Erro ao carregar dados base", error);
       }
     }
     carregarDados();

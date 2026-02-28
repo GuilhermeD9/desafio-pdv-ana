@@ -21,7 +21,6 @@ function TelaProdutos() {
       const resposta = await api.get('/produtos');
       setProdutos(resposta.data);
     } catch (error) {
-      console.error("Erro ao buscar produtos:", error);
             Swal.fire({
               icon: 'error',
               title: 'Oops...',

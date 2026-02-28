@@ -25,7 +25,6 @@ function TelaPedidos() {
       setClientes(respClientes.data);
       setProdutos(respProdutos.data);
     } catch (error) {
-      console.error("Erro ao buscar dados:", error);
       Swal.fire({ icon: 'error', title: 'Erro', text: 'Falha ao carregar clientes ou produtos.' });
     }
   };
@@ -109,7 +108,6 @@ function TelaPedidos() {
       setCarrinho([]);
       carregarDadosBase();
     } catch (error) {
-      console.error("Erro ao salvar pedido:", error);
 
       if (error.response && error.response.data) {
         const dadosErro = error.response.data;

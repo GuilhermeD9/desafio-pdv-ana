@@ -100,7 +100,6 @@ function App() {
     <BrowserRouter>
       <NavBar />
       <Container>
-        {}
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/clientes" element={<TelaClientes />} />

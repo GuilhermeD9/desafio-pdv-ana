@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Table, Button, Form, Card, Row, Col, Alert, InputGroup } from 'react-bootstrap';
+import { Table, Button, Form, Card, Row, Col, InputGroup } from 'react-bootstrap';
 import api from '../api/api';
 import Swal from 'sweetalert2';
 
@@ -20,7 +20,6 @@ function TelaClientes() {
       const resposta = await api.get('/clientes');
       setClientes(resposta.data); 
     } catch (error) {
-      console.error("Erro ao buscar clientes:", error);
       Swal.fire({
         icon: 'error',
         title: 'Oops...',
@@ -46,7 +45,6 @@ function TelaClientes() {
       setEmail('');
       carregarClientes();
     } catch (error) {
-      console.error("Erro ao salvar:", error);
       if (error.response && error.response.data) {
         const dadosErro = error.response.data;
         if (dadosErro.erro) {
