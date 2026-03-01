@@ -68,7 +68,7 @@ public class ProdutoRepository {
 
     public boolean produtoExistente(String descricao) {
         String sql = "SELECT COUNT(*) FROM produto WHERE descricao = ?";
-        Boolean exists = jdbcTemplate.queryForObject(sql, Boolean.class, descricao);
-        return Boolean.TRUE.equals(exists);
+        Integer count = jdbcTemplate.queryForObject(sql, Integer.class, descricao);
+        return count != null && count > 0;
     }
 }

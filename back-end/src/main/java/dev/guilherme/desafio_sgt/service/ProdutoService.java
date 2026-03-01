@@ -1,7 +1,7 @@
 package dev.guilherme.desafio_sgt.service;
 
-import dev.guilherme.desafio_sgt.dto.produto.ProdutoResponseDTO;
 import dev.guilherme.desafio_sgt.dto.produto.ProdutoRequestDTO;
+import dev.guilherme.desafio_sgt.dto.produto.ProdutoResponseDTO;
 import dev.guilherme.desafio_sgt.model.Produto;
 import dev.guilherme.desafio_sgt.repository.ProdutoRepository;
 import org.springframework.stereotype.Service;

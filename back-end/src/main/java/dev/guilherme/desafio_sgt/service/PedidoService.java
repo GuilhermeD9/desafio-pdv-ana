@@ -49,11 +49,12 @@ public class PedidoService {
             }
 
             BigDecimal desconto = item.desconto() != null ? item.desconto() : BigDecimal.ZERO;
+            BigDecimal valorUnitario = item.valorUnitario() != null ? item.valorUnitario() : produto.getValor();
 
             ItemPedido itemPedido = new ItemPedido();
             itemPedido.setProdutoId(produto.getId());
             itemPedido.setQuantidade(item.quantidade());
-            itemPedido.setValorUnitario(produto.getValor());
+            itemPedido.setValorUnitario(valorUnitario);
             itemPedido.setDesconto(desconto);
 
             BigDecimal subtotalItem = itemPedido.getValorUnitario()
@@ -130,7 +131,7 @@ public class PedidoService {
             pedido.setItens(itens);
         }
 
-        return pedidoRepository.buscarPorPeriodo(dtInicio, dtFim).stream()
+        return pedidos.stream()
                 .map(this::mapToResponse)
                 .toList();
     }
@@ -139,13 +140,14 @@ public class PedidoService {
         List<ItemPedidoResponseDTO> itensResponse = pedido.getItens().stream()
                 .map(item -> {
                     Produto produto = produtoRepository.buscarPorId(item.getProdutoId());
+                    BigDecimal desconto = item.getDesconto() != null ? item.getDesconto() : BigDecimal.ZERO;
 
                     return new ItemPedidoResponseDTO(
                             item.getProdutoId(),
                             produto.getDescricao(),
                             item.getQuantidade(),
                             item.getValorUnitario(),
-                            item.getValorUnitario().multiply(BigDecimal.valueOf(item.getQuantidade())).subtract(item.getDesconto())
+                            item.getValorUnitario().multiply(BigDecimal.valueOf(item.getQuantidade())).subtract(desconto)
                     );
                 })
                 .toList();
