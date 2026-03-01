@@ -1,7 +1,7 @@
 package dev.guilherme.desafio_sgt.controller;
 
 import dev.guilherme.desafio_sgt.dto.produto.ProdutoResponseDTO;
-import dev.guilherme.desafio_sgt.dto.produto.ProdutoResquetDTO;
+import dev.guilherme.desafio_sgt.dto.produto.ProdutoRequestDTO;
 import dev.guilherme.desafio_sgt.service.ProdutoService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +20,7 @@ public class ProdutoController {
     }
 
     @PostMapping
-    public ResponseEntity<ProdutoResponseDTO> cadastrar(@RequestBody @Valid ProdutoResquetDTO produto) {
+    public ResponseEntity<ProdutoResponseDTO> cadastrar(@RequestBody @Valid ProdutoRequestDTO produto) {
         return ResponseEntity.status(201).body(produtoService.cadastrar(produto));
     }
 

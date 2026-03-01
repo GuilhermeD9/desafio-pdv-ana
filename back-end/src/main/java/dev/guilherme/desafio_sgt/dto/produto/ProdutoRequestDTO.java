@@ -8,7 +8,7 @@ import jakarta.validation.constraints.Positive;
 
 import java.math.BigDecimal;
 
-public record ProdutoResquetDTO(
+public record ProdutoRequestDTO(
         @NotBlank(message = "A descrição do produto é obrigatória.")
         String descricao,
 
