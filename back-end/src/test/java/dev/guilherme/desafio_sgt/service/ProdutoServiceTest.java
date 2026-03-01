@@ -1,10 +1,7 @@
 package dev.guilherme.desafio_sgt.service;
 
-import dev.guilherme.desafio_sgt.dto.cliente.ClienteRequestDTO;
-import dev.guilherme.desafio_sgt.dto.cliente.ClienteResponseDTO;
 import dev.guilherme.desafio_sgt.dto.produto.ProdutoRequestDTO;
 import dev.guilherme.desafio_sgt.dto.produto.ProdutoResponseDTO;
-import dev.guilherme.desafio_sgt.model.Cliente;
 import dev.guilherme.desafio_sgt.model.Produto;
 import dev.guilherme.desafio_sgt.repository.ProdutoRepository;
 import org.junit.jupiter.api.Test;
