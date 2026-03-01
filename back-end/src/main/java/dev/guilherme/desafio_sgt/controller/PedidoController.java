@@ -3,15 +3,10 @@ package dev.guilherme.desafio_sgt.controller;
 import dev.guilherme.desafio_sgt.dto.pedido.PedidoRequestDTO;
 import dev.guilherme.desafio_sgt.dto.pedido.PedidoResponseDTO;
 import dev.guilherme.desafio_sgt.service.PedidoService;
+import jakarta.validation.Valid;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -28,7 +23,7 @@ public class PedidoController {
     }
 
     @PostMapping
-    public ResponseEntity<PedidoResponseDTO> cadastrar(@RequestBody PedidoRequestDTO pedido) {
+    public ResponseEntity<PedidoResponseDTO> cadastrar(@RequestBody @Valid PedidoRequestDTO pedido) {
         return ResponseEntity.status(201).body(pedidoService.cadastrar(pedido));
     }
 

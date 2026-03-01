@@ -119,9 +119,13 @@ function TelaProdutos() {
                   <Form.Control 
                     type="number" 
                     step="0.01"
-                    placeholder="0.00" 
-                    value={valor}
-                    onChange={(e) => setValor(e.target.value)}
+                    min="0"
+                    placeholder="0,00" 
+                    value={valor || ''}
+                    onChange={(e) => {
+                    const value = parseFloat(e.target.value);
+                    setValor(value >= 0 ? value : 0);
+                  }}
                     required 
                   />
                 </Form.Group>

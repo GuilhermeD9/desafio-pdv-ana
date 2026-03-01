@@ -1,7 +1,7 @@
 package dev.guilherme.desafio_sgt.controller;
 
-import dev.guilherme.desafio_sgt.dto.produto.ProdutoResponseDTO;
 import dev.guilherme.desafio_sgt.dto.produto.ProdutoRequestDTO;
+import dev.guilherme.desafio_sgt.dto.produto.ProdutoResponseDTO;
 import dev.guilherme.desafio_sgt.service.ProdutoService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;

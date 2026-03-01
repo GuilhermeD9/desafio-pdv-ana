@@ -3,6 +3,7 @@ package dev.guilherme.desafio_sgt.dto.pedido;
 import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 
 import java.math.BigDecimal;
 
@@ -18,6 +19,6 @@ public record ItemPedidoRequestDTO(
         @Positive(message = "O valor unitário deve ser maior que zero.")
         BigDecimal valorUnitario,
 
-        @Positive(message = "O desconto não pode ser negativo.")
+        @PositiveOrZero(message = "O desconto não pode ser negativo.")
         BigDecimal desconto
 ) {}

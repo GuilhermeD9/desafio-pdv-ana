@@ -66,7 +66,7 @@ public class ClienteRepository {
 
     public boolean emailExistente(String email) {
         String sql = "SELECT COUNT(*) FROM cliente WHERE email = ?";
-        Boolean exists = jdbcTemplate.queryForObject(sql, Boolean.class, email);
-        return Boolean.TRUE.equals(exists);
+        Integer count = jdbcTemplate.queryForObject(sql, Integer.class, email);
+        return count != null && count > 0;
     }
 }
