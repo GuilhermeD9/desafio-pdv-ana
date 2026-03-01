@@ -100,7 +100,11 @@ const realizarBusca = () => {
                     type="text" 
                     placeholder="Digite o nome" 
                     value={nome}
-                    onChange={(e) => setNome(e.target.value)}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      const lettersOnly = value.replace(/[^a-zA-ZÀ-ÿ\s]/g, '');
+                      setNome(lettersOnly);
+                    }}
                     required 
                   />
                 </Form.Group>

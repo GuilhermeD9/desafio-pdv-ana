@@ -179,11 +179,15 @@ function TelaPedidos() {
               <Form.Group className="mb-3 mb-md-0">
                 <Form.Label>Desconto (R$)</Form.Label>
                 <Form.Control 
-                  type="number" 
-                  min="0" 
+                  type="number"  
                   step="0.01" 
-                  value={desconto} 
-                  onChange={(e) => setDesconto(e.target.value)}
+                  min="0"
+                  placeholder='0,00'
+                  value={desconto || ''}
+                  onChange={(e) => {
+                    const value = parseFloat(e.target.value);
+                    setDesconto(value >= 0 ? value : 0);
+                  }}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') {
                       e.preventDefault();
