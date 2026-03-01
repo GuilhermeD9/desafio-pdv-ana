@@ -31,3 +31,24 @@ CREATE TABLE IF NOT EXISTS item_pedido (
     CONSTRAINT fk_item_pedido FOREIGN KEY (pedido_id) REFERENCES pedido(id),
     CONSTRAINT fk_item_produto FOREIGN KEY (produto_id) REFERENCES produto(id)
 );
+
+INSERT INTO cliente (nome, email) VALUES
+('Ana Souza', 'ana.souza@email.com'),
+('Carlos Silva', 'carlos.silva@email.com'),
+('Beatriz Costa', 'beatriz.costa@email.com');
+
+INSERT INTO produto (descricao, valor, quantidade) VALUES
+('Notebook Dell Inspiron', 4500.00, 10),
+('Mouse Sem Fio Logitech', 150.00, 50),
+('Monitor LG 29 Ultrawide', 1200.00, 15);
+
+INSERT INTO pedido (cliente_id, valor_total) VALUES
+(1, 4650.00),
+(2, 1200.00);
+
+INSERT INTO item_pedido (pedido_id, produto_id, quantidade, valor_unitario, desconto) VALUES
+(1, 1, 1, 4500.00, 0.00),
+(1, 2, 1, 150.00, 0.00);
+
+INSERT INTO item_pedido (pedido_id, produto_id, quantidade, valor_unitario, desconto) VALUES
+(2, 3, 1, 1200.00, 0.00)
