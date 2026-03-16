@@ -7,8 +7,6 @@ import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/api/clientes")
 public class ClienteController {
@@ -25,19 +23,14 @@ public class ClienteController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ClienteResponseDTO>> listarTodos() {
-        return ResponseEntity.ok(clienteService.listarTodos());
-    }
-
-    @GetMapping("/busca")
     public ResponseEntity<Object> buscar(@RequestParam(required = false) Long id,
                                          @RequestParam(required = false) String nome) {
         if (id != null && nome == null) {
             return ResponseEntity.ok(clienteService.buscarPorId(id));
         } else if (id == null && nome != null) {
             return ResponseEntity.ok(clienteService.buscarPorNome(nome));
+        } else {
+            return ResponseEntity.ok(clienteService.listarTodos());
         }
-
-        return ResponseEntity.badRequest().body("Algum um dos campos devem ser preenchidos");
     }
 }
